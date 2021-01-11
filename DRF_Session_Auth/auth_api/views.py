@@ -19,7 +19,7 @@ def registration_view(request):
     data = {}
     if serializer.is_valid(raise_exception=True):
         account = serializer.save()
-        data['response'] = "Successfully Registered"
+        data['message'] = "Successfully Registered"
         data['username'] = account.username
         data['name'] = account.name
         data['email'] = account.email

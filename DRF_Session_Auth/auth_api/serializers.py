@@ -1,5 +1,13 @@
 from rest_framework import serializers
 from auth_api.models import Account
+import re
+
+def validate_password(password):
+    regex = '^(?=.*[A-Za-z])(?=.*\d)(?=.*[-_#])[A-Za-z\d@$!%*#?&]{1,6}$'
+    if re.match(regex, password):
+        return False
+    else:
+        return True
 
 class RegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
@@ -19,9 +27,26 @@ class RegistrationSerializer(serializers.ModelSerializer):
         )
         password = self.validated_data['password']
         password2 = self.validated_data['password2']
+        username = self.validated_data['username']
+
+        errors = {}
+        if len(username) > 8:
+            errors['username']=[
+                'Username should be less than 9 characters'
+            ]
 
         if password != password2:
-            raise serializers.ValidationError({'password': 'Passwords must match'})
+            errors['password']= ['Passwords must match']
+
+        if validate_password(password):
+            if 'password' in errors:
+                errors['password'].append('Password should be less than 7 characters and must contain 1 number, 1 character, any of _#-')
+            else:
+                errors['password'] = ['Password should be less than 7 characters and must contain 1 number, 1 character, any of _#-']
+
+        if len(errors)>0:
+            raise serializers.ValidationError(errors)
+
         account.set_password(password)
         account.save()
         return account
