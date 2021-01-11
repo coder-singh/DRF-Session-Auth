@@ -38,3 +38,7 @@ method : GET
   - log into admin console using admin and password just set
   - Once logged in, visit localhost:8000/api/profile
   - localhost:8000/api/logout will log you out
+
+### How to change the Session timeout 
+- Open docker-compose and change the SESSION_TIMEOUT environment variable  
+representation in minutes
