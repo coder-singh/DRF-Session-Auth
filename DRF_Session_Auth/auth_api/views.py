@@ -1,18 +1,15 @@
-from django.shortcuts import render
 
-# Create your views here.
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth import logout
 
 from auth_api.serializers import RegistrationSerializer, LoginSerializer, AccountSerializer
 
 from rest_framework.permissions import (
     AllowAny,
-    IsAdminUser,
     IsAuthenticated,
-    IsAuthenticatedOrReadOnly,
 )
 
 @api_view(['POST',])
@@ -42,3 +39,17 @@ def login_view(request):
         data = serializer.errors
         print(data)
     return Response(data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def logout_view(request):
+    logout(request)
+    data = {'message' : 'Logged out successfully'}
+    return Response(data=data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profile_view(request):
+    account = request.user
+    serializer = AccountSerializer(account)
+    return Response(serializer.data)
