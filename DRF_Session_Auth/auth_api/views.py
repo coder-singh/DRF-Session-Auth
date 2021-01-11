@@ -24,9 +24,10 @@ def registration_view(request):
         data['name'] = account.name
         data['email'] = account.email
         data['phone'] = account.phone
+        return Response(data, status=status.HTTP_201_CREATED)
     else:
         data = serializer.errors
-    return Response(data)
+        return Response(data)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -35,10 +36,11 @@ def login_view(request):
     if serializer.is_valid(raise_exception=True):
         data = serializer.data
         print(data)
+        return Response(data, status=status.HTTP_200_OK)
     else:
         data = serializer.errors
         print(data)
-    return Response(data)
+        return Response(data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -52,4 +54,4 @@ def logout_view(request):
 def profile_view(request):
     account = request.user
     serializer = AccountSerializer(account)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_200_OK)

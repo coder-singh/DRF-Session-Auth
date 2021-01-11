@@ -2,6 +2,8 @@ from rest_framework import serializers
 from auth_api.models import Account
 import re
 
+from auth_api.exceptions import Custom409
+
 def validate_password(password):
     regex = '^(?=.*[A-Za-z])(?=.*\d)(?=.*[-_#])[A-Za-z\d@$!%*#?&]{1,6}$'
     if re.match(regex, password):
@@ -15,7 +17,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = Account
         fields = ['username', 'name', 'phone', 'email', 'password', 'password2']
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
+            'username': {'validators': []}
         }
 
     def save(self):
@@ -30,6 +33,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         username = self.validated_data['username']
 
         errors = {}
+        
+        existing_user = Account.objects.filter(username=username).count()
+        if existing_user == 1:
+            errors['username'] = [
+                'Username already exists'
+            ]
+            raise Custom409(errors)
         if len(username) > 8:
             errors['username']=[
                 'Username should be less than 9 characters'
