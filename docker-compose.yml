@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    command: python DRF_Session_Auth/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on: 
+      - migration
+    environment:
+      SESSION_TIMEOUT: 1
+
+  migration:
+    command: python DRF_Session_Auth/manage.py migrate --noinput
+    volumes:
+      - .:/code
